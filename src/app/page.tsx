@@ -50,7 +50,7 @@ export default function Page() {
         download={handleDownload}
         total={edited.length}
       />
-      <main className="mx-auto max-w-7xl px-4 pt-24 pb-8 space-y-4">
+      <main className="mx-auto max-w-screen-2xl px-4 pt-24 pb-8 space-y-4">
         <h1 className="text-2xl font-bold flex justify-center">Notion Press</h1>
         {loading && <p>Loading...</p>}
         {!loading && headers.length > 0 ? (
