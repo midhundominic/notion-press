@@ -6,19 +6,17 @@ type Props = {
   original: Row[]
   edited: Row[]
   setEdited: (r: Row[]) => void
+  search?: string
 }
 
-export default function BooksTable({ headers, original, edited, setEdited }: Props) {
+export default function BooksTable({ headers, original, edited, setEdited, search = '' }: Props) {
   const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' | null }>({
     key: headers[0] ?? '',
     dir: null,
   })
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(50)
-  const [filterText, setFilterText] = useState('')
-
-
-  ;(window as any).setFilterFromToolbar = (v: string) => setFilterText(v)
+  const searchText = search.trim().toLowerCase()
 
   const editedMap = useMemo(() => {
     const map = new Map<number, Set<string>>()
@@ -37,14 +35,11 @@ export default function BooksTable({ headers, original, edited, setEdited }: Pro
   }, [original, edited, headers])
 
   const filtered = useMemo(() => {
-    if (!filterText) return edited
-    const t = filterText.toLowerCase()
-    return edited.filter(
-      (r) =>
-        (r.title ?? '').toLowerCase().includes(t) ||
-        (r.author ?? '').toLowerCase().includes(t)
+    if (!searchText) return edited
+    return edited.filter((row) =>
+      headers.some((h) => (row[h] ?? '').toLowerCase().includes(searchText))
     )
-  }, [edited, filterText])
+  }, [edited, headers, searchText])
 
   const sorted = useMemo(() => {
     if (!sort.dir) return filtered
@@ -76,7 +71,7 @@ export default function BooksTable({ headers, original, edited, setEdited }: Pro
         <thead className="bg-slate-50">
           <tr>
             {headers.map((h) => (
-              <th key={h} className="p-2 text-left sticky top-0">
+              <th key={h} className="p-2 text-left sticky top-0 bg-slate-50 z-10">
                 <div className="flex items-center gap-2">
                   <button
                     className="font-medium"
@@ -111,10 +106,12 @@ export default function BooksTable({ headers, original, edited, setEdited }: Pro
               >
                 {headers.map((h) => {
                   const changed = changedCols?.has(h)
+                  const cellValue = row[h] ?? ''
+                  const matchesSearch = !!searchText && cellValue.toLowerCase().includes(searchText)
                   return (
-                    <td key={h} className="p-2 align-top border-t">
+                    <td key={h} className={`p-2 align-top border-t ${matchesSearch ? 'bg-yellow-50/60' : ''}`}>
                       <input
-                        value={row[h] ?? ''}
+                        value={cellValue}
                         onChange={(e) => setCell(idx, h, e.target.value)}
                         className={`w-full bg-transparent outline-none ${
                           changed ? 'edited-cell border rounded px-1' : ''

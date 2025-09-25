@@ -41,8 +41,7 @@ export default function Page() {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">CSV Books App</h1>
+    <div>
       <Toolbar
         filter={filter}
         setFilter={setFilter}
@@ -51,15 +50,45 @@ export default function Page() {
         download={handleDownload}
         total={edited.length}
       />
-      {loading && <p>Loading...</p>}
-      {!loading && headers.length > 0 && (
-        <BooksTable
-          headers={headers}
-          original={original}
-          edited={edited}
-          setEdited={setEdited}
-        />
-      )}
+      <main className="mx-auto max-w-7xl px-4 pt-24 pb-8 space-y-4">
+        <h1 className="text-2xl font-bold flex justify-center">Notion Press</h1>
+        {loading && <p>Loading...</p>}
+        {!loading && headers.length > 0 ? (
+          <BooksTable
+            headers={headers}
+            original={original}
+            edited={edited}
+            setEdited={setEdited}
+            search={filter}
+          />
+        ) : (
+          <section className="mt-8">
+            <div className="flex items-center justify-center">
+              <label
+                htmlFor="landing-upload"
+                className="group relative w-full sm:w-[600px] border-2 border-dashed rounded-xl p-10 text-center cursor-pointer bg-white/60 backdrop-blur hover:bg-white transition shadow-sm"
+              >
+                <input
+                  id="landing-upload"
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleUpload(f);
+                    e.currentTarget.value = ''
+                  }}
+                />
+                <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-2xl">⬆️</div>
+                <div className="text-lg font-semibold">Drag & drop your CSV here</div>
+                <div className="text-sm text-slate-600">or click to browse files</div>
+                <div className="mt-4 text-xs text-slate-500">Expected headers like: title, author, isbn, year</div>
+                <div className="pointer-events-none absolute inset-0 rounded-xl ring-4 ring-transparent group-hover:ring-sky-200"></div>
+              </label>
+            </div>
+          </section>
+        )}
+      </main>
     </div>
   );
 }
